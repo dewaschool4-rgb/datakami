@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buku Nilai Kelas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f3f0ff; --ink:#1a1240; --panel:#ffffff; --soft:#e7e1ff;
+    --ungu:#5b3df5; --kuning:#ffd23f; --mint:#14c9a2; --merah:#e5354f;
+    --garis:#1a1240; --bayang:#1a1240; --teks-tombol:#ffffff;
+    --f-judul:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+    --f-isi:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --f-kode:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#120d2b; --ink:#f1edff; --panel:#1d1745; --soft:#2a2360;
+      --ungu:#8c78ff; --mint:#3be0bb; --merah:#ff6b81;
+      --garis:#5b4fb0; --bayang:#05030f; --teks-tombol:#120d2b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; color:var(--ink); font-family:var(--f-isi); line-height:1.55;
+    background-color:var(--bg);
+    background-image:radial-gradient(color-mix(in srgb, var(--ungu) 28%, transparent) 1.2px, transparent 1.4px);
+    background-size:24px 24px;
+  }
+  .tata { display:grid; grid-template-columns: 340px 1fr; min-height:100vh; }
+
+  /* ===== Panel SQL (gaya terminal) ===== */
+  aside {
+    background:#0d0922; color:#d9d3f5; padding:20px 16px; border-right:3px solid var(--kuning);
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+    font-family:var(--f-kode); font-size:.8rem;
+  }
+  aside h2 {
+    font-family:var(--f-judul); font-weight:800; font-size:1.35rem; margin:0 0 6px; color:#fff;
+    display:flex; align-items:center; gap:10px;
+  }
+  aside h2::before {
+    content:""; width:11px; height:11px; border-radius:50%; flex:none;
+    background:var(--merah); box-shadow:17px 0 0 var(--kuning), 34px 0 0 var(--mint); margin-right:34px;
+  }
+  aside p.ket { font-family:var(--f-isi); margin:0 0 16px; color:#a9a0d6; font-size:.88rem; }
+  .kotak {
+    background:#171233; border:1px solid #30286a; border-left:4px solid var(--mint);
+    border-radius:10px; padding:11px 12px; margin-bottom:12px;
+    transition:border-color .8s ease, box-shadow .8s ease;
+  }
+  aside > .kotak { border-left-color:#8c78ff; }
+  .kotak .judul { font-family:var(--f-isi); color:#a9a0d6; margin-bottom:7px; font-size:.82rem; }
+  pre { margin:0; white-space:pre-wrap; word-break:break-word; line-height:1.6; }
+  .kw { color:#b9a8ff; font-weight:700; }
+  .str { color:#ffd23f; }
+  .num { color:#3be0bb; }
+  .arti { font-family:var(--f-isi); color:#d9d3f5; margin-top:9px; font-size:.86rem; }
+  .meta { color:#8479c4; margin-top:6px; font-size:.74rem; }
+  .baru {
+    border-color:var(--kuning); box-shadow:0 0 0 3px rgba(255,210,63,.25);
+    animation:masuk .45s ease-out;
+  }
+  @keyframes masuk { from { opacity:0; transform:translateX(-14px); } to { opacity:1; transform:none; } }
+
+  /* ===== Halaman utama ===== */
+  main { padding:36px 28px 56px; max-width:780px; width:100%; }
+  h1 {
+    font-family:var(--f-judul); font-weight:800; letter-spacing:-.02em; line-height:1.05;
+    font-size:clamp(2.3rem,5vw,3.4rem); margin:0 0 14px; position:relative; padding-bottom:16px;
+  }
+  h1::after {
+    content:""; position:absolute; left:0; bottom:0; width:96px; height:8px;
+    background:var(--kuning); border:2px solid var(--garis); border-radius:99px;
+  }
+  p.sub { margin:0 0 28px; opacity:.8; font-size:1.05rem; }
+
+  form {
+    display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:10px;
+    background:var(--panel); border:2px solid var(--garis); border-radius:18px;
+    padding:18px; box-shadow:7px 7px 0 var(--bayang);
+  }
+  input, button {
+    font:inherit; padding:11px 13px; border:2px solid var(--garis); border-radius:10px;
+    background:var(--bg); color:var(--ink); min-width:0;
+  }
+  input::placeholder { color:color-mix(in srgb, var(--ink) 50%, transparent); }
+  input:focus { background:var(--panel); border-color:var(--ungu); }
+  button {
+    cursor:pointer; font-weight:700; background:var(--ungu); color:var(--teks-tombol); border-color:var(--garis);
+    box-shadow:3px 3px 0 var(--bayang); transition:transform .1s ease, box-shadow .1s ease;
+  }
+  button:hover { transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--bayang); }
+  button:active { transform:translate(3px,3px); box-shadow:0 0 0 var(--bayang); }
+  button.kecil {
+    background:var(--panel); color:var(--ungu); border-color:var(--ungu);
+    padding:5px 12px; border-radius:8px; font-size:.88rem; box-shadow:none;
+  }
+  button.kecil:hover { background:var(--ungu); color:var(--teks-tombol); transform:none; box-shadow:none; }
+  button.kecil:active { transform:scale(.96); }
+  button.hapus { color:var(--merah); border-color:var(--merah); }
+  button.hapus:hover { background:var(--merah); color:#fff; }
+  :focus-visible { outline:3px solid var(--ungu); outline-offset:3px; }
+
+  #pesan { min-height:1.6em; margin-top:12px; color:var(--merah); font-weight:600; }
+
+  /* ===== Tabel ===== */
+  .tabel-wrap {
+    overflow-x:auto; margin-top:8px; background:var(--panel);
+    border:2px solid var(--garis); border-radius:18px; box-shadow:7px 7px 0 var(--bayang);
+  }
+  table { width:100%; border-collapse:separate; border-spacing:0; margin:0; }
+  th, td { text-align:left; padding:13px 16px; border-bottom:1px dashed color-mix(in srgb, var(--ink) 25%, transparent); }
+  th {
+    background:var(--ungu); color:var(--teks-tombol); font-family:var(--f-judul);
+    font-weight:700; font-size:.98rem; letter-spacing:.01em; border-bottom:2px solid var(--garis);
+  }
+  tbody tr { transition:background .15s ease; }
+  tbody tr:hover { background:var(--soft); }
+  tbody tr:last-child td { border-bottom:none; }
+  td:first-child { font-weight:700; }
+  td:nth-child(3) { font-family:var(--f-kode); font-weight:700; color:var(--ungu); font-variant-numeric:tabular-nums; }
+  td:last-child { white-space:nowrap; }
+  .kosong { text-align:center; padding:40px 20px; opacity:.75; font-style:italic; }
+
+  @media (max-width: 860px) {
+    .tata { grid-template-columns:1fr; }
+    aside { position:static; height:auto; max-height:360px; border-right:none; border-bottom:3px solid var(--kuning); }
+  }
+  @media (max-width: 560px) {
+    main { padding:28px 16px 44px; }
+    form { grid-template-columns:1fr 1fr; }
+    form input:first-child { grid-column:1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .baru { animation:none; }
+    button, tbody tr, .kotak { transition:none; }
+  }
+</style>
+</head>
+<body>
+<div class="tata">
+  <aside>
+    <h2>Jendela SQL</h2>
+    <p class="ket">Setiap klik di web akan menjalankan perintah SQL. Lihat di sini apa yang dikirim ke database.</p>
+    <div class="kotak">
+      <div class="judul">Struktur tabel (dibuat sekali di awal)</div>
+      <pre id="skema"></pre>
+    </div>
+    <div id="log"></div>
+  </aside>
+
+  <main>
+    <h1>Buku Nilai Kelas</h1>
+    <p class="sub">Data tersimpan di database PostgreSQL.</p>
+
+    <form id="form">
+      <input id="nama" placeholder="Nama siswa" required>
+      <input id="kelas" placeholder="Kelas" required>
+      <input id="nilai" type="number" min="0" max="100" placeholder="Nilai">
+      <button type="submit" id="tombol">Tambah siswa</button>
+    </form>
+    <div id="pesan" role="alert"></div>
+
+    <div class="tabel-wrap">
+      <table>
+        <thead><tr><th>Nama</th><th>Kelas</th><th>Nilai</th><th>Aksi</th></tr></thead>
+        <tbody id="isi"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let sedangEdit = null;
+
+  const SKEMA = "CREATE TABLE siswa (\n  id SERIAL PRIMARY KEY,\n  nama VARCHAR(100) NOT NULL,\n  kelas VARCHAR(20) NOT NULL,\n  nilai INTEGER DEFAULT 0\n);";
+
+  // Mewarnai kata kunci SQL supaya mudah dibaca
+  function warnai(teks) {
+    const aman = teks.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return aman
+      .replace(/('(?:[^']|'')*')/g, '<span class="str">$1</span>')
+      .replace(/\b(SELECT|FROM|INSERT INTO|VALUES|UPDATE|SET|DELETE|WHERE|ORDER BY|DESC|RETURNING|CREATE TABLE|PRIMARY KEY|NOT NULL|DEFAULT|SERIAL|VARCHAR|INTEGER)\b/g, '<span class="kw">$1</span>')
+      .replace(/(\s|=|,|\()(\d+)(?=\s|,|\)|;|$)/g, '$1<span class="num">$2</span>');
+  }
+
+  $("skema").innerHTML = warnai(SKEMA);
+
+  // Menambah catatan baru di jendela SQL (yang terbaru di atas)
+  function catat(log) {
+    if (!log) return;
+    const div = document.createElement("div");
+    div.className = "kotak baru";
+    const pre = document.createElement("pre");
+    pre.innerHTML = warnai(log.sql);
+    const arti = document.createElement("div");
+    arti.className = "arti";
+    arti.textContent = log.arti;
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = log.baris + " baris terpengaruh \u2022 " + log.waktu;
+    div.append(pre, arti, meta);
+    const wadah = $("log");
+    wadah.prepend(div);
+    setTimeout(() => div.classList.remove("baru"), 1500);
+    while (wadah.children.length > 12) wadah.lastChild.remove();
+  }
+
+  async function muat() {
+    const res = await fetch("/api/siswa");
+    const hasil = await res.json();
+    catat(hasil.log);
+    const data = hasil.rows;
+    const isi = $("isi");
+    if (!Array.isArray(data) || data.length === 0) {
+      isi.innerHTML = '<tr><td colspan="4" class="kosong">Belum ada siswa. Isi formulir di atas lalu klik Tambah siswa.</td></tr>';
+      return;
+    }
+    isi.innerHTML = "";
+    data.forEach((s) => {
+      const tr = document.createElement("tr");
+      [s.nama, s.kelas, s.nilai].forEach((v) => {
+        const td = document.createElement("td");
+        td.textContent = v;
+        tr.appendChild(td);
+      });
+      const aksi = document.createElement("td");
+      const ubah = document.createElement("button");
+      ubah.className = "kecil"; ubah.textContent = "Ubah";
+      ubah.onclick = () => {
+        sedangEdit = s.id;
+        $("nama").value = s.nama; $("kelas").value = s.kelas; $("nilai").value = s.nilai;
+        $("tombol").textContent = "Simpan perubahan";
+        $("nama").focus();
+      };
+      const hapus = document.createElement("button");
+      hapus.className = "kecil hapus"; hapus.textContent = "Hapus";
+      hapus.onclick = async () => {
+        if (!confirm("Hapus " + s.nama + "?")) return;
+        const r = await fetch("/api/siswa/" + s.id, { method: "DELETE" });
+        catat((await r.json()).log);
+        muat();
+      };
+      aksi.append(ubah, " ", hapus);
+      tr.appendChild(aksi);
+      isi.appendChild(tr);
+    });
+  }
+
+  $("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("pesan").textContent = "";
+    const body = JSON.stringify({ nama: $("nama").value, kelas: $("kelas").value, nilai: $("nilai").value });
+    const url = sedangEdit ? "/api/siswa/" + sedangEdit : "/api/siswa";
+    const res = await fetch(url, { method: sedangEdit ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body });
+    const hasil = await res.json();
+    if (!res.ok) {
+      $("pesan").textContent = hasil.error || "Terjadi kesalahan.";
+      return;
+    }
+    catat(hasil.log);
+    sedangEdit = null;
+    $("form").reset();
+    $("tombol").textContent = "Tambah siswa";
+    muat();
+  });
+
+  muat();
+</script>
+</body>
+</html>
